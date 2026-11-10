@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>五目並べ 必勝トレーナー</title>
+<style>
+:root{--bg:#f4f2ec;--panel:#fff;--ink:#22201c;--sub:#69665e;--line:#e0dcd1;--accent:#23684a;--accent-ink:#fff;--soft:#eef4ef;--danger:#b3372f;--dangerbg:#fbecea;--warn:#8a5f00;--warnbg:#fbf3dd;--good:#1f6f4a;--goodbg:#e7f3ec}
+@media (prefers-color-scheme:dark){:root{--bg:#191816;--panel:#242320;--ink:#eceae4;--sub:#a5a299;--line:#3b3934;--accent:#5fb088;--accent-ink:#0e1a13;--soft:#243029;--danger:#ec8078;--dangerbg:#3a2321;--warn:#e0b04a;--warnbg:#3a3120;--good:#6cc496;--goodbg:#1f3328}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI","Segoe UI",sans-serif;font-size:15px;line-height:1.65}
+header{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:14px 22px;border-bottom:1px solid var(--line);background:var(--panel)}
+h1{font-size:18px;margin:0;font-weight:600}
+nav{display:flex;gap:6px}
+button{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 13px;cursor:pointer}
+button:hover{border-color:var(--sub)}
+button:disabled{opacity:.45;cursor:default}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+nav button.on,.seg button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:20px;max-width:1120px;margin:0 auto;padding:20px}
+@media (max-width:900px){main{grid-template-columns:minmax(0,1fr)}}
+#boardWrap{min-width:0}
+#board{width:100%;max-width:640px;display:block;margin:0 auto;touch-action:manipulation;user-select:none;cursor:pointer}
+#board text{font-family:inherit}
+#board .co{font-size:13px;fill:#5a4520;text-anchor:middle}
+#status{max-width:640px;margin:10px auto 0;padding:10px 14px;border-radius:10px;background:var(--panel);border:1px solid var(--line);min-height:44px;font-weight:500}
+#status.win{background:var(--goodbg);color:var(--good);border-color:transparent}
+#status.lose{background:var(--dangerbg);color:var(--danger);border-color:transparent}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 8px;font-weight:600}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0}
+.row>label{color:var(--sub);font-size:13px;min-width:86px}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button{padding:5px 11px;font-size:14px}
+.sub{color:var(--sub);font-size:13px}
+.tag{display:inline-block;border-radius:6px;padding:1px 8px;font-size:13px;font-weight:600}
+.tag.bad{background:var(--dangerbg);color:var(--danger)}
+.tag.warn{background:var(--warnbg);color:var(--warn)}
+.tag.good{background:var(--goodbg);color:var(--good)}
+.tag.plain{background:var(--soft);color:var(--sub)}
+.cmt{margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--soft)}
+.cmt p{margin:0 0 6px}.cmt p:last-child{margin:0}
+.kifu{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:4px;margin:10px 0 0;padding:0;list-style:none;max-height:230px;overflow:auto}
+.kifu li{font-size:13px;border:1px solid var(--line);border-radius:6px;padding:2px 6px;cursor:pointer;white-space:nowrap;display:flex;justify-content:space-between;gap:4px}
+.kifu li.cur{border-color:var(--accent);background:var(--soft)}
+.kifu li b{font-weight:600}
+.kifu .m-blunder b{color:var(--danger)}.kifu .m-missed b{color:var(--warn)}.kifu .m-good b{color:var(--good)}
+.navb{display:flex;align-items:center;gap:6px;margin:8px 0}
+.navb span{flex:1;text-align:center;font-weight:500}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:right;padding:5px 6px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--sub);font-weight:500;font-size:13px}
+ol.steps{margin:6px 0 0;padding-left:20px}
+ol.steps li{margin-bottom:5px}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--accent);width:0}
+.glist{max-height:300px;overflow:auto;margin-top:6px}
+.glist .g{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}
+.glist .g span{flex:1}
+.glist .g .tag{flex:none}
+details summary{cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <h1>五目並べ 必勝トレーナー</h1>
+  <nav id="tabs">
+    <button data-mode="play">対戦</button>
+    <button data-mode="learn">説明（必勝法）</button>
+    <button data-mode="records">戦績</button>
+  </nav>
+  <span class="sub">15路・制限なし（三三・四四・長連すべて可）</span>
+</header>
+<main>
+  <section id="boardWrap">
+    <svg id="board" viewBox="0 0 620 620" role="img" aria-label="五目並べの盤面"></svg>
+    <div id="status"></div>
+  </section>
+  <aside id="side"></aside>
+</main>
+<script id="engine-src" type="text/plain">
+/*__ENGINE__*/
+</script>
+<script>
+/*__UI__*/
+</script>
+</body>
+</html>
